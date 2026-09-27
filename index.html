@@ -367,25 +367,51 @@
         display: flex;
         flex-direction: column;
         gap: 2.5rem;
-        max-width: 40rem;
+        max-width: 48rem;
       }
       .soon h2 {
         margin: 0 0 1rem;
         font-size: clamp(1.35rem, 3.5vw, 1.75rem);
         font-weight: 700;
       }
-      .people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+      .people {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 18.5rem), 1fr));
+        gap: 0.85rem;
+      }
+      .people .soon-box { grid-column: 1 / -1; }
       .person {
         display: flex;
         align-items: center;
-        justify-content: flex-start;
         gap: 0.9rem;
-        padding: 0.9rem 1.15rem;
+        padding: 1rem 1.15rem;
         background: var(--bg-elevated);
         border: 1px solid var(--rule);
-        border-radius: 4px;
+        border-radius: 12px;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
       }
-      .person .p-id { flex: 1; }
+      .person:hover {
+        transform: translateY(-3px);
+        border-color: color-mix(in srgb, var(--accent) 45%, var(--rule));
+        box-shadow: 0 14px 30px -18px color-mix(in srgb, var(--accent) 55%, transparent);
+      }
+      .p-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+      .p-tag {
+        align-self: flex-start;
+        margin-top: 0.1rem;
+        font-family: var(--font-sans);
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--accent-ink);
+        background: var(--accent-soft);
+        border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+        border-radius: 999px;
+        padding: 0.14rem 0.6rem;
+        white-space: nowrap;
+      }
       .roster-note {
         margin: 0 0 1.5rem;
         font-size: 0.9rem;
@@ -420,44 +446,53 @@
         transition: color 0.15s ease;
       }
       .site-foot a:hover { color: var(--accent); }
-      .p-id { display: flex; align-items: center; gap: 0.7rem; min-width: 0; }
       .avatar {
         flex: none;
-        width: 2.4rem;
-        height: 2.4rem;
+        width: 3.35rem;
+        height: 3.35rem;
         border-radius: 50%;
         overflow: hidden;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         background: var(--bg-soft);
-        border: 1px solid var(--rule);
-        color: var(--fg-muted);
+        color: var(--accent-ink);
         font-family: var(--font-mono);
-        font-size: 0.8rem;
+        font-size: 0.95rem;
         font-weight: 600;
+        box-shadow:
+          0 0 0 3px var(--bg-elevated),
+          0 0 0 4px color-mix(in srgb, var(--accent) 30%, var(--rule));
       }
       .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-      .p-name { font-weight: 600; }
+      .p-name {
+        font-weight: 600;
+        font-size: 1.02rem;
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
       .soon h2 .h2-note { font-size: 0.8rem; font-weight: 400; color: var(--fg-subtle); }
       .p-link {
         flex: none;
+        width: 2.15rem;
+        height: 2.15rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        color: var(--accent-ink);
-        background: var(--accent-soft);
-        border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
-        border-radius: 4px;
-        padding: 0.4rem;
+        color: var(--fg-muted);
+        background: transparent;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
         line-height: 0;
         text-decoration: none;
-        transition: background 0.15s ease;
+        transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
       }
-      .p-link:hover { background: color-mix(in srgb, var(--accent) 22%, var(--accent-soft)); }
+      .p-link:hover { color: #fff; background: var(--accent); border-color: var(--accent); }
       .p-link svg { display: block; }
       .p-cv { font: inherit; cursor: pointer; }
-      .p-actions { flex: none; display: flex; align-items: center; gap: 0.5rem; }
+      .p-actions { flex: none; display: flex; align-items: center; gap: 0.4rem; }
 
       /* Résumé modal */
       .modal {
@@ -930,14 +965,23 @@
         function card(p) {
           var li = document.createElement("li");
           li.className = "person";
-          var id = document.createElement("span");
-          id.className = "p-id";
-          id.appendChild(avatar(p));
+          li.appendChild(avatar(p));
+
+          var info = document.createElement("div");
+          info.className = "p-info";
           var name = document.createElement("span");
           name.className = "p-name";
           name.textContent = p.name || "";
-          id.appendChild(name);
-          li.appendChild(id);
+          info.appendChild(name);
+          // Optional role tag (e.g. «راهبر دوره», «منتور»), shown as a pill.
+          if (p.tag) {
+            var tag = document.createElement("span");
+            tag.className = "p-tag";
+            tag.textContent = p.tag;
+            info.appendChild(tag);
+          }
+          li.appendChild(info);
+
           var actions = document.createElement("span");
           actions.className = "p-actions";
           if (p.linkedin) {
